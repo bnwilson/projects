@@ -18,7 +18,7 @@ const guessingGame = (userGuess, secretNumber) => {
         hintArray[difference]
     switch (userGuess) {
         case secretNumber:
-            console.log(" *** ~*~*~*~* Contrats *~*~*~*~* *** ");
+            console.log(" *** ~*~*~*~* Congrats *~*~*~*~* *** ");
             console.log("  You win!!!!!!!!!!!!! =)");
             endGame = true;
             break;
@@ -39,7 +39,7 @@ const guessingGame = (userGuess, secretNumber) => {
     }
     return endGame;
 }
-
+module.exports = guessingGame;
 const playGame = () => {
     /********* Starter Values **********/
     let guessCount = 0;
@@ -77,7 +77,6 @@ const playGame = () => {
 
 if (require.main == module) {
     playGame();
-    return
 }
 
 
