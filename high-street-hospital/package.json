@@ -1,0 +1,30 @@
+{
+  "name": "high-street-hospital-jalil-brad",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --colors --watchAll"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WeCanCodeIT/high-street-hospital-jalil-brad.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WeCanCodeIT/high-street-hospital-jalil-brad/issues"
+  },
+  "homepage": "https://github.com/WeCanCodeIT/high-street-hospital-jalil-brad#readme",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  },
+<<<<<<< HEAD
+  "description": "Name    | Constructor Parms | Notes\r --------|-------------------|-------\r Employee| name, id, salary? | Abstract/Origin class\r Doctor  | name, id          | Extends Employee\r Surgeon | name, id          | Extends Doctor\r Nurse   | name, id          | Extends Employee\r Bluecollar | name, id, salary? | Abstract, Extends Employee\r Receptionist | name, id, salary? | Extends Bluecollar\r Janitor | name, id          | Extends Bluecollar\r Vampire Janitor | name, id  | Extends Janitor\r Patient | name, bloodType, bloodLevel?, health_level?, ailment? | Origin",
+=======
+  "description": "",
+>>>>>>> 0b21f695c205a2df952b20085c212527614e5ad0
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
+}
