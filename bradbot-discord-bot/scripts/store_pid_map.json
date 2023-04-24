@@ -1,0 +1,17 @@
+{
+	"method": "GET",
+	"finderUrl": "https://popfindr.com/results",
+	"token": "03AGdBq26ADJ4SHXJLAtNulxXki-6TRCuSdUYDC1ytMLEnalszC29RODb3_twM3_4gDv2K4e8Cawf3akhCHRx8iA7DVsfYpkWGWDJEEhAYRl6drcpvLdGhhn4G70wVZj3Vz_ywy-VuA984NsK6o2rEwAP_g8mB53a3bXtr0lzREkCMmqsLZUKgrDZt5SHqjUzi9dVmphPjBqqzN5HMaIpuqiTVSM4oJGP6cnbJlXoy61VMkatibFsi5pNbh7GdcNblZJb0p2fcS_nNzZknGRli9w-RR7XNJLN1xisTpvRyG6RK50IA-qROAKwaCdThT9JToQahEDbBMCZvGJ2dloKokJ3OBSwAgE5iE-jn7TbhECbSrBMVjxEBIbAEq0jlj9J8FpAEAiV3fHRyZrQWX0Q0SWOZCQHg1IBX3W0HKvUr03r5mnuH1zMUnElIpUN8daIot_FqiL2yOGFp",
+	"gameStop": {
+		"webpage": "gamestop",
+		"pid": "225169"
+	},
+	"target": {
+		"webpage": "target",
+		"pid": "207-43-0001"
+	},
+	"bestBuy": {
+		"webpage": "bestbuy",
+		"pid": "6426149"
+	}
+}

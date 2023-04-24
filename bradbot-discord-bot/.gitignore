@@ -1,0 +1,8 @@
+node_modules
+.DS_Store*
+.hubot_history
+scripts/*.zip
+bradbot
+curl_weather.sh
+__pycache__/
+/*.vscode/
