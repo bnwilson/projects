@@ -1,0 +1,737 @@
+---
+const days = Array.from({ length: 31 }, (_, i) => i + 1);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Subscription Tracker</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+      :root {
+        --bg: #f4f1ec;
+        --panel: #ffffff;
+        --ink: #1b1b1f;
+        --muted: #6b6b76;
+        --accent: #1f6feb;
+        --accent-2: #ef476f;
+        --border: #e3e0da;
+        --shadow: 0 20px 60px rgba(20, 20, 40, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Space Grotesk', system-ui, sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at top left, #f6e9ff 0%, transparent 45%),
+          radial-gradient(circle at 30% 50%, #e7f2ff 0%, transparent 55%),
+          var(--bg);
+      }
+
+      .app {
+        min-height: 100vh;
+        padding: 32px;
+        display: grid;
+        grid-template-columns: minmax(260px, 320px) 1fr;
+        gap: 28px;
+      }
+
+      aside {
+        background: var(--panel);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      main {
+        background: var(--panel);
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      :global([data-muted]) {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .button {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--accent);
+        color: white;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      :global([data-button]) {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--accent);
+        color: white;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .button.secondary {
+        background: #f2f4f8;
+        color: var(--ink);
+      }
+
+      :global([data-button-secondary]) {
+        background: #f2f4f8;
+        color: var(--ink);
+      }
+
+      .button.ghost {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--border);
+      }
+
+      .button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(31, 111, 235, 0.25);
+      }
+
+      :global([data-button]:hover) {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(31, 111, 235, 0.25);
+      }
+
+      .subscriptions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: clamp(450px,1200px,75vh);
+        overflow-y: auto;
+      }
+
+      :global([data-subscription-card]) {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 12px 14px;
+        display: grid;
+        gap: 8px;
+        cursor: pointer;
+        background: #fcfcff;
+      }
+
+      :global([data-subscription-card][draggable='true']) {
+        cursor: grab;
+      }
+
+      :global([data-subscription-card][data-dragging='true']) {
+        opacity: 0.55;
+      }
+
+      :global([data-subscription-card][data-active='true']) {
+        border-color: var(--accent);
+        box-shadow: 0 12px 26px rgba(31, 111, 235, 0.15);
+      }
+
+      :global([data-subscription-meta]) {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      :global([data-subscription-meta] span) {
+        font-weight: 600;
+      }
+
+      :global([data-subscription-actions]) {
+        display: flex;
+        gap: 8px;
+      }
+
+      .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .day {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 12px;
+        min-height: 110px;
+        display: grid;
+        gap: 8px;
+        background: #faf9f7;
+        cursor: pointer;
+      }
+
+      .day:hover {
+        border-color: var(--accent);
+      }
+
+      .day[data-today='true'] {
+        border-color: var(--accent-2);
+        box-shadow: inset 0 0 0 2px rgba(239, 71, 111, 0.45);
+      }
+
+      .day[data-drop-target='true'] {
+        border-color: var(--accent);
+        background: #f2f7ff;
+        box-shadow: inset 0 0 0 2px rgba(31, 111, 235, 0.2);
+      }
+
+      .day-number {
+        font-weight: 700;
+        color: var(--accent-2);
+      }
+
+      :global([data-entry]) {
+        font-size: 0.85rem;
+        padding: 4px 6px;
+        border-radius: 8px;
+        background: #edf2ff;
+        color: #1a3d8f;
+      }
+
+      .status {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      dialog {
+        border: none;
+        border-radius: 18px;
+        padding: 0;
+        width: min(480px, 90vw);
+        box-shadow: var(--shadow);
+      }
+
+      dialog::backdrop {
+        background: rgba(20, 20, 30, 0.45);
+      }
+
+      .modal {
+        padding: 20px 24px 24px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .modal header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal form {
+        display: grid;
+        gap: 12px;
+      }
+
+      .day-subscriptions {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      :global([data-day-subscription]) {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        background: #faf9f7;
+        height: 24px;
+      }
+
+      :global([data-day-subscription-container]) {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 16px;
+        width: 100%;
+      }
+
+      :global([data-day-subscription-delete]) {
+        color: red;
+        font-size: 24px;
+        cursor: pointer;
+        vertical-align: middle;
+        width: 24px;
+      }
+
+      :global([data-day-subscription-delete]:hover) {
+        border-color: var(--accent);
+        font-weight: bolder;
+        font-size: 27px;
+        cursor: pointer;
+        text-shadow: 4px 6px 8px 8px rgba(45,65,65,0.35);
+      }
+
+      :global([data-day-subscription] span) {
+        font-weight: 600;
+      }
+
+      .day-total {
+        border-top: 1px solid var(--border);
+        padding-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        font-weight: 700;
+      }
+
+      label {
+        font-size: 0.85rem;
+        color: var(--muted);
+        display: grid;
+        gap: 6px;
+      }
+
+      input,
+      textarea {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font: inherit;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      @media (max-width: 900px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside>
+        <div>
+          <h2>Subscriptions</h2>
+          <p class="muted">Drag a subscription onto a calendar day to assign it.</p>
+        </div>
+        <button class="button" id="open-create">Add New Sub +</button>
+        <div class="status" id="selected-status">No subscription selected.</div>
+        <div class="subscriptions" id="subscription-list"></div>
+      </aside>
+      <main>
+        <div>
+          <h1>31-Day Planner</h1>
+          <p class="muted">Build a lightweight month view and map each subscription to any day.</p>
+        </div>
+        <div class="calendar" id="calendar">
+          {days.map((day) => (
+            <div class="day" data-day={day}>
+              <div class="day-number">Day {day}</div>
+              <div class="day-entries"></div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+
+    <dialog id="subscription-modal">
+      <div class="modal">
+        <header>
+          <h3 id="modal-title">New Subscription</h3>
+          <button class="button secondary" id="close-modal" type="button">Close</button>
+        </header>
+        <form id="subscription-form">
+          <input type="hidden" name="id" />
+          <label>
+            Title
+            <input name="title" placeholder="e.g., Spotify" required />
+          </label>
+          <label>
+            Cost (monthly)
+            <input name="cost" type="number" step="0.01" placeholder="9.99" required />
+          </label>
+          <label>
+            Description
+            <input name="description" placeholder="Optional short description" />
+          </label>
+          <label>
+            Notes
+            <textarea name="notes" placeholder="Any reminders or account info"></textarea>
+          </label>
+          <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button class="button ghost" type="reset">Reset</button>
+            <button class="button" type="submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <dialog id="day-modal">
+      <div class="modal">
+        <header>
+          <h3 id="day-modal-title">Day Details</h3>
+          <button class="button secondary" id="close-day-modal" type="button">Close</button>
+        </header>
+        <ul class="day-subscriptions" id="day-subscriptions"></ul>
+        <p class="muted" id="no-day-subscriptions" hidden>No subscriptions</p>
+        <div class="day-total">
+          <span>Total</span>
+          <strong id="day-total">$0.00</strong>
+        </div>
+      </div>
+    </dialog>
+
+    <script>
+      const subscriptionList = document.getElementById('subscription-list');
+      const calendar = document.getElementById('calendar');
+      const status = document.getElementById('selected-status');
+      const modal = document.getElementById('subscription-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const form = document.getElementById('subscription-form');
+      const openCreate = document.getElementById('open-create');
+      const closeModal = document.getElementById('close-modal');
+      const dayModal = document.getElementById('day-modal');
+      const dayModalTitle = document.getElementById('day-modal-title');
+      const daySubscriptions = document.getElementById('day-subscriptions');
+      const noDaySubscriptions = document.getElementById('no-day-subscriptions');
+      const dayTotal = document.getElementById('day-total');
+      const closeDayModal = document.getElementById('close-day-modal');
+
+      const state = {
+        subscriptions: [],
+        entries: [],
+        selectedId: null,
+        activeDay: null
+      };
+
+      const currency = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      });
+
+      async function loadAll() {
+        const [subsRes, entriesRes] = await Promise.all([
+          fetch('/api/subscriptions'),
+          fetch('/api/calendar')
+        ]);
+        const subsData = await subsRes.json();
+        const entriesData = await entriesRes.json();
+        state.subscriptions = subsData.subscriptions || [];
+        state.entries = entriesData.entries || [];
+        renderSubscriptions();
+        renderEntries();
+        highlightToday();
+      }
+
+      function setSelected(id) {
+        state.selectedId = id;
+        const current = state.subscriptions.find((sub) => sub.id === id);
+        status.textContent = current
+          ? `Selected: ${current.title} (${currency.format(current.cost)})`
+          : 'No subscription selected.';
+        renderSubscriptions();
+      }
+
+      function renderSubscriptions() {
+        subscriptionList.innerHTML = '';
+        if (state.subscriptions.length === 0) {
+          subscriptionList.innerHTML = '<p data-muted>No subscriptions yet.</p>';
+          return;
+        }
+
+        state.subscriptions.forEach((sub) => {
+          const card = document.createElement('div');
+          card.dataset.subscriptionCard = '';
+          card.dataset.active = String(state.selectedId === sub.id);
+          card.draggable = true;
+          card.dataset.subscriptionId = sub.id;
+          card.innerHTML = `
+            <div data-subscription-meta>
+              <span>${sub.title}</span>
+              <strong>${currency.format(sub.cost)}</strong>
+            </div>
+            <div data-muted>${sub.description || 'No description'}</div>
+            <div data-subscription-actions>
+              <button data-button data-button-secondary data-action="edit">Edit</button>
+              <button data-button data-button-secondary data-action="delete">Remove</button>
+            </div>
+          `;
+
+          card.addEventListener('click', (event) => {
+            if (event.target.dataset.action === 'edit') {
+              openEdit(sub);
+              event.stopPropagation();
+              return;
+            }
+            if (event.target.dataset.action === 'delete') {
+              removeSubscription(sub.id);
+              event.stopPropagation();
+              return;
+            }
+            setSelected(sub.id);
+          });
+
+          card.addEventListener('dragstart', (event) => {
+            event.dataTransfer.effectAllowed = 'copy';
+            event.dataTransfer.setData('text/plain', String(sub.id));
+            card.dataset.dragging = 'true';
+            // setSelected(sub.id);
+          });
+
+          card.addEventListener('dragend', () => {
+            delete card.dataset.dragging;
+          });
+
+          subscriptionList.appendChild(card);
+        });
+      }
+
+      function renderEntries() {
+        const entriesByDay = state.entries.reduce((acc, entry) => {
+          acc[entry.day] = acc[entry.day] || [];
+          acc[entry.day].push(entry);
+          return acc;
+        }, {});
+
+        calendar.querySelectorAll('[data-day]').forEach((cell) => {
+          const day = Number(cell.dataset.day);
+          const container = cell.querySelector('.day-entries');
+          const entries = entriesByDay[day] || [];
+          container.innerHTML = entries
+            .map((entry) => `<div data-entry>${entry.title}</div>`)
+            .join('');
+        });
+      }
+
+      function highlightToday() {
+        const today = new Date().getDate();
+        calendar.querySelectorAll('[data-day]').forEach((cell) => {
+          cell.dataset.today = String(Number(cell.dataset.day) === today);
+        });
+      }
+
+      function getEntriesForDay(day) {
+        return state.entries.filter((entry) => entry.day === day);
+      }
+
+      function openDayDetails(day) {
+        state.activeDay = day;
+        const entries = getEntriesForDay(day);
+        const total = entries.reduce((sum, entry) => sum + Number(entry.cost || 0), 0);
+
+        dayModalTitle.textContent = `Day ${day} Subscriptions`;
+        daySubscriptions.innerHTML = '';
+        noDaySubscriptions.hidden = entries.length > 0;
+
+        // Populate subscriptions in day card
+        entries.forEach((entry) => {
+          const daySubscriptionContainer = document.createElement('div');
+          daySubscriptionContainer.dataset.daySubscriptionContainer = '';
+
+          const daySubscriptionDeleteBtn = document.createElement('i');
+          daySubscriptionDeleteBtn.dataset.daySubscriptionDelete = '';
+          daySubscriptionDeleteBtn.dataset.subscriptionId = `${entry.subscriptionId}`;
+          daySubscriptionDeleteBtn.classList.add('material-icons');
+          daySubscriptionDeleteBtn.setAttribute('aria-label', `Remove ${entry.title} from day ${day}`);
+          daySubscriptionDeleteBtn.setAttribute('role', 'button');
+          daySubscriptionDeleteBtn.setAttribute('tabindex', '0');
+          daySubscriptionDeleteBtn.textContent = 'delete';
+
+          const item = document.createElement('li');
+          item.dataset.daySubscription = '';
+
+          const title = document.createElement('span');
+          title.textContent = entry.title;
+
+          const amount = document.createElement('strong');
+          amount.textContent = currency.format(entry.cost);
+
+          daySubscriptionContainer.append(title, amount);
+          item.append(daySubscriptionDeleteBtn,daySubscriptionContainer);
+          daySubscriptions.appendChild(item);
+        });
+
+        dayTotal.textContent = currency.format(total);
+        dayModal.showModal();
+      }
+
+      async function saveSubscription(payload) {
+        const isEdit = Boolean(payload.id);
+        const url = isEdit ? `/api/subscriptions/${payload.id}` : '/api/subscriptions';
+        const method = isEdit ? 'PUT' : 'POST';
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.error || 'Unable to save subscription.');
+          return;
+        }
+
+        await loadAll();
+        modal.close();
+        form.reset();
+      }
+
+      async function removeSubscription(id) {
+        if (!confirm('Remove this subscription?')) return;
+        await fetch(`/api/subscriptions/${id}`, { method: 'DELETE' });
+        if (state.selectedId === id) {
+          setSelected(null);
+        }
+        await loadAll();
+      }
+
+      async function addAssignment(day, subscriptionId) {
+        const response = await fetch('/api/calendar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ day, subscriptionId })
+        });
+        const data = await response.json();
+        state.entries = data.entries || [];
+        renderEntries();
+      }
+
+      async function removeAssignment(day, subscriptionId) {
+        const response = await fetch('/api/calendar', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ day, subscriptionId })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.error || 'Unable to remove subscription from day.');
+          return;
+        }
+
+        const data = await response.json();
+        state.entries = data.entries || [];
+        renderEntries();
+        openDayDetails(day);
+      }
+
+      function openEdit(sub) {
+        modalTitle.textContent = `Edit ${sub.title}`;
+        form.id.value = sub.id;
+        form.title.value = sub.title;
+        form.cost.value = sub.cost;
+        form.description.value = sub.description || '';
+        form.notes.value = sub.notes || '';
+        modal.showModal();
+      }
+
+      openCreate.addEventListener('click', () => {
+        modalTitle.textContent = 'New Subscription';
+        form.reset();
+        form.id.value = '';
+        modal.showModal();
+      });
+
+      closeModal.addEventListener('click', () => modal.close());
+      closeDayModal.addEventListener('click', () => dayModal.close());
+
+      daySubscriptions.addEventListener('click', (event) => {
+        const deleteControl = event.target.closest('[data-day-subscription-delete]');
+        if (!deleteControl || state.activeDay === null) return;
+
+        const subscriptionId = Number(deleteControl.dataset.subscriptionId);
+        if (Number.isNaN(subscriptionId)) return;
+
+        removeAssignment(state.activeDay, subscriptionId);
+      });
+
+      daySubscriptions.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+
+        const deleteControl = event.target.closest('[data-day-subscription-delete]');
+        if (!deleteControl || state.activeDay === null) return;
+
+        event.preventDefault();
+        const subscriptionId = Number(deleteControl.dataset.subscriptionId);
+        if (Number.isNaN(subscriptionId)) return;
+
+        removeAssignment(state.activeDay, subscriptionId);
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const payload = {
+          id: form.id.value ? Number(form.id.value) : null,
+          title: form.title.value,
+          cost: Number(form.cost.value),
+          description: form.description.value,
+          notes: form.notes.value
+        };
+        saveSubscription(payload);
+      });
+
+      calendar.addEventListener('dragover', (event) => {
+        const cell = event.target.closest('[data-day]');
+        if (!cell) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+        cell.dataset.dropTarget = 'true';
+      });
+
+      calendar.addEventListener('dragleave', (event) => {
+        const cell = event.target.closest('[data-day]');
+        if (!cell || cell.contains(event.relatedTarget)) return;
+        delete cell.dataset.dropTarget;
+      });
+
+      calendar.addEventListener('drop', (event) => {
+        const cell = event.target.closest('[data-day]');
+        if (!cell) return;
+        event.preventDefault();
+        delete cell.dataset.dropTarget;
+
+        const day = Number(cell.dataset.day);
+        const subscriptionId = Number(event.dataTransfer.getData('text/plain'));
+        if (Number.isNaN(subscriptionId)) return;
+
+        addAssignment(day, subscriptionId);
+      });
+
+      calendar.addEventListener('click', (event) => {
+        const cell = event.target.closest('[data-day]');
+        if (!cell) return;
+        const day = Number(cell.dataset.day);
+        openDayDetails(day);
+      });
+
+      loadAll();
+    </script>
+  </body>
+</html>
